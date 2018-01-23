@@ -29,4 +29,6 @@ RSpec.configure do |config|
 
   config.include RequestSpecHelper
   
+  config.include ControllerSpecHelper
+  
 end
