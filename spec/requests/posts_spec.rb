@@ -1,15 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe 'Posts API', type: :request do
-  let!(:blog) { create(:blog) }
+  let!(:user) { create(:user) }
+  let!(:blog) { create(:blog, user_id: user.id) }
   let!(:posts) { create_list(:post, 20, blog_id: blog.id, publish_date: Date.today) }
   let(:blog_id) { blog.id }
   let(:id) { posts.first.id }
+  let(:headers) { valid_headers }
 
   # GET /blogs/:blog_id/posts
   describe 'GET /blogs/:blog_id/posts' do
     context 'the posts exist' do
-      before { get "/blogs/#{blog_id}/posts" } 
+      before { get "/blogs/#{blog_id}/posts", params: {}, headers: headers } 
       it 'returns the status code 200' do
         expect(response).to have_http_status(200)
       end
@@ -20,7 +22,7 @@ RSpec.describe 'Posts API', type: :request do
     end
 
     context 'the posts do not exist' do
-      before { get "/blogs/0/posts" }
+      before { get "/blogs/0/posts", params: {}, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -34,7 +36,7 @@ RSpec.describe 'Posts API', type: :request do
   # GET /blogs/:blog_id/posts/:post_id
   describe 'GET /blogs/:blog_id/posts/:post_id' do
     context 'the post exists' do
-      before { get "/blogs/#{blog_id}/posts/#{id}" }
+      before { get "/blogs/#{blog_id}/posts/#{id}", params: {}, headers: headers }
       it 'returns the item' do
         expect(json['id']).to eq(id)
       end
@@ -45,7 +47,7 @@ RSpec.describe 'Posts API', type: :request do
     end
 
     context 'the item does not exist' do
-      before { get "/blogs/#{blog_id}/posts/0" }
+      before { get "/blogs/#{blog_id}/posts/0", params: {}, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -66,12 +68,12 @@ RSpec.describe 'Posts API', type: :request do
         content: 'New Post Content',
         published: false,
         publish_date: Date.today
-      }
+    }.to_json
     end
 
     context 'the post contents are valid' do
       context 'the blog exists' do
-        before { post "/blogs/#{blog_id}/posts", params: valid_post }
+        before { post "/blogs/#{blog_id}/posts", params: valid_post, headers: headers }
         it 'returns the status 201' do
           expect(response).to have_http_status(201)
         end
@@ -82,7 +84,7 @@ RSpec.describe 'Posts API', type: :request do
       end
 
       context 'the blog does not exist' do
-        before { post "/blogs/0/posts", params: valid_post }
+        before { post "/blogs/0/posts", params: valid_post, headers: headers }
         it 'returns the status 404' do
           expect(response).to have_http_status(404)
         end
@@ -91,7 +93,7 @@ RSpec.describe 'Posts API', type: :request do
 
     context 'the post contents are not valid' do
       context 'the blog exists' do
-        before { post "/blogs/#{blog_id}/posts", params: {} }
+        before { post "/blogs/#{blog_id}/posts", params: {}, headers: headers }
         it 'returns the message unprocessable entity' do
           expect(response.message).to match(/Unprocessable Entity/)
         end
@@ -102,7 +104,7 @@ RSpec.describe 'Posts API', type: :request do
       end
 
       context 'the blog does not exists' do
-        before { post "/blogs/0/posts", params: {} }
+        before { post "/blogs/0/posts", params: {}, headers: headers }
         it 'returns the status code 404' do
           expect(response).to have_http_status(404)
         end
@@ -113,10 +115,10 @@ RSpec.describe 'Posts API', type: :request do
   # PATCH /blogs/:blog_id/posts/:post_id
   describe 'PATCH /blogs/:blog_id/posts/:post_id' do
 
-    let(:valid_update) { { title: 'New Title' } }
+    let(:valid_update) { { title: 'New Title' }.to_json }
 
     context 'the update content is valid' do
-      before { patch "/blogs/#{blog_id}/posts/#{id}", params: valid_update }
+      before { patch "/blogs/#{blog_id}/posts/#{id}", params: valid_update, headers: headers }
       it 'updates and returns the content' do
         expect(json['title']).to eq('New Title')
       end
@@ -127,7 +129,7 @@ RSpec.describe 'Posts API', type: :request do
     end
 
     context 'the post record does not exist' do
-      before { patch "/blogs/0/posts/#{id}", params: valid_update }
+      before { patch "/blogs/0/posts/#{id}", params: valid_update, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -141,14 +143,14 @@ RSpec.describe 'Posts API', type: :request do
   # DELETE /blogs/:blog_id/posts/:post_id
   describe 'DELETE /blogs/:blog_id/posts/:post_id' do
     context 'the post exists' do
-      before { delete "/blogs/#{blog_id}/posts/#{id}" }
+      before { delete "/blogs/#{blog_id}/posts/#{id}", params: {}, headers: headers }
       it 'returns the status code 204' do
         expect(response).to have_http_status(204)
       end
     end
 
     context 'the post does not exist' do
-      before { delete "/blogs/0/posts/#{id}" }
+      before { delete "/blogs/0/posts/#{id}", params: {}, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end

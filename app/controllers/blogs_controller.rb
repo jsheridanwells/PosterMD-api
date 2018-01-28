@@ -2,7 +2,7 @@ class BlogsController < ApplicationController
   before_action :set_blog, only: [:show, :update, :destroy]
   
   def index
-    @blogs = Blog.all
+    @blogs = current_user.blogs
     json_response(@blogs)
   end
 
@@ -11,7 +11,7 @@ class BlogsController < ApplicationController
   end
 
   def create
-    new_blog = Blog.create!(blog_params)
+    new_blog = current_user.blogs.create!(blog_params)
     json_response(new_blog, :created)
   end
 
