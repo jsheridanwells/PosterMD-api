@@ -1,11 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe 'Blogs API', type: :request do
-  let!(:blogs) { create_list(:blog, 10) }
+  let!(:user) { create(:user) }
+  let!(:blogs) { create_list(:blog, 10, user_id: user.id) }
   let(:id) { blogs.first.id }
+  let(:headers) { valid_headers }
   # GET /blogs
   describe 'GET /blogs' do
-    before { get '/blogs' }
+    before { get '/blogs', params: {}, headers: headers }
     it 'returns all the blogs' do
       expect(blogs.size).to eq(10)
     end
@@ -17,7 +19,7 @@ RSpec.describe 'Blogs API', type: :request do
 
   # GET /blogs/:id
   describe 'GET /blogs/:id' do
-    before { get "/blogs/#{id}" }
+    before { get "/blogs/#{id}", params: {}, headers: headers }
     context 'when the blog exists' do
       it 'returns the specified blog' do
         expect(json).to_not be_empty
@@ -30,7 +32,7 @@ RSpec.describe 'Blogs API', type: :request do
     end
 
     context 'when the blog does not exist' do
-      before { get "/blogs/#{0}" }
+      before { get "/blogs/#{0}", params: {}, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -43,9 +45,9 @@ RSpec.describe 'Blogs API', type: :request do
 
   # POST /blogs
   describe 'POST /blogs' do
-    let(:valid_post) { { title: 'New Blog', description: 'This is my new description' } }
+    let(:valid_post) { { title: 'New Blog', description: 'This is my new description' }.to_json }
     context 'when the request is valid' do
-      before { post '/blogs',  params: valid_post}
+      before { post '/blogs',  params: valid_post, headers: headers }
 
       it 'creates the blog and returns it ' do
         expect(json['title']).to eq('New Blog')
@@ -57,7 +59,7 @@ RSpec.describe 'Blogs API', type: :request do
     end
 
     context 'when the request is not valid' do
-      before { post '/blogs', params: {} }
+      before { post '/blogs', params: {}, headers: headers }
       it 'returns the status code 422' do
         expect(response).to have_http_status(422)
       end
@@ -70,9 +72,9 @@ RSpec.describe 'Blogs API', type: :request do
   
   # PATCH /blogs/:id
   describe 'PATCH /blogs/:id' do
-    let(:valid_update) { { title: 'New Title' } }
+    let(:valid_update) { { title: 'New Title' }.to_json }
     context 'when the blog exists' do
-      before { patch "/blogs/#{id}", params: valid_update }
+      before { patch "/blogs/#{id}", params: valid_update, headers: headers }
       it 'returns the status code 200' do
         expect(response).to have_http_status(200)
       end
@@ -83,7 +85,7 @@ RSpec.describe 'Blogs API', type: :request do
     end
 
     context 'when the blog does not exist' do
-      before { patch "/blogs/0", params: valid_update }
+      before { patch "/blogs/0", params: valid_update, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -93,13 +95,13 @@ RSpec.describe 'Blogs API', type: :request do
   # DELETE /blgos/:id
   describe 'DELETE /blogs/:id' do
     context 'when the blog exists' do
-      before { delete "/blogs/#{id}" }
+      before { delete "/blogs/#{id}", params: {}, headers: headers }
       it 'returns the status code 204' do
         expect(response).to have_http_status(204)
       end
     end
     context 'when the blog does not exist' do
-      before { delete '/blogs/0' }
+      before { delete '/blogs/0', params: {}, headers: headers }
       it 'returns the status code 404' do
         expect(response).to have_http_status(404)
       end
