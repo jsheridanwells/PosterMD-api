@@ -1,4 +1,6 @@
 class AuthenticationController < ApplicationController
+  skip_before_action :authenticate_request, only: :authenticate
+  
   def authenticate
     auth_token = AuthenticateUser.new(
       authentication_params[:email], authentication_params[:password]
