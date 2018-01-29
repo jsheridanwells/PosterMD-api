@@ -33,3 +33,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'faker'
 gem 'bcrypt', '~> 3.1.11'
 gem 'jwt', '~> 1.5', '>= 1.5.4'
+gem 'rack-cors', '0.4.1'
