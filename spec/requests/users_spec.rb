@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
-  let(:user) { build(:user) }
+  let!(:user) { build(:user) }
   let(:headers) { valid_headers.except('Authorization') }
   let(:valid_attributes) { attributes_for(:user, password_confirmation: user.password) }
 
@@ -69,7 +69,17 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when email is not unique' do
+      before { @user_2 = user }
+      before { post '/signup', params: @user_2.to_json, headers: headers }
+      
+      it 'does not create a new user' do
+        puts "user is:#{user.email}:::::#{@user_2.to_json}"
+        expect(response).to have_http_status(422)
+      end
 
+      it 'returns an error message' do
+        expect(json['message']).to match(/Validation failed/)
+      end
     end
 
     context 'when email is more than 255 characters' do
