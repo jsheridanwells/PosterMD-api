@@ -1,3 +1,22 @@
+def fake_blogs(user_id)    # create 3 blogs for test user
+  3.times do
+      blog = Blog.create(
+        title: Faker::Book.title,
+        description: Faker::Lorem.sentence,
+        user_id: user_id
+      )
+      # for each blog, create 20 posts
+      20.times do
+        blog.posts.create(
+          title: Faker::Lorem.sentence,
+          content: "<h2>My next post</h2><p>#{Faker::Lovecraft.paragraph(20)}</p>",
+          published: Faker::Boolean.boolean(0.9),
+          publish_date: Faker::Date.between(Date.today, 5.days.from_now)
+        )
+      end    
+    end
+end
+
 # Create 1 test user
 User.create(
   first_name: 'Example',
@@ -7,23 +26,7 @@ User.create(
   password_confirmation: '123456'
 )
 
-# create 3 blogs for test user
-3.times do
-    blog = Blog.create(
-      title: Faker::Book.title,
-      description: Faker::Lorem.sentence,
-      user_id: User.last.id
-    )
-    # for each blog, create 20 posts
-    20.times do
-      blog.posts.create(
-        title: Faker::Lorem.sentence,
-        content: "<h2>My next post</h2><p>#{Faker::Lovecraft.paragraph(20)}</p>",
-        published: Faker::Boolean.boolean(0.9),
-        publish_date: Faker::Date.between(Date.today, 5.days.from_now)
-      )
-    end    
-  end
+fake_blogs(User.last.id)
 
 # Create 4 more random users
 4.times do
@@ -34,23 +37,7 @@ User.create(
     password: '123456',
     password_confirmation: '123456'
   )
-  # For each user, create 3 blogs
-  3.times do
-    blog = Blog.create(
-      title: Faker::Book.title,
-      description: Faker::Lorem.sentence,
-      user_id: User.last.id
-    )
-    # for each blog, create 20 posts
-    20.times do
-      blog.posts.create(
-        title: Faker::Lorem.sentence,
-        content: "<h2>My next post</h2><p>#{Faker::Lovecraft.paragraph(20)}</p>",
-        published: Faker::Boolean.boolean(0.9),
-        publish_date: Faker::Date.between(Date.today, 5.days.from_now)
-      )
-    end    
-  end
+  fake_blogs(User.last.id)
 end
 
 
